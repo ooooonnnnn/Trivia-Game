@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Trivia_Game_Server.Controllers;
 
@@ -8,58 +9,64 @@ namespace Trivia_Game_Server.Controllers;
 public class QuestionsController : ControllerBase
 {
     private readonly TriviaDbContext _context;
-    public QuestionsController(TriviaDbContext context) => _context = context;
-    
-    private const int QUESTION_CACHE_SIZE = 100;
-    private HashSet<TriviaQuestion> questionCache = [];
-    
-    // [HttpGet("raw")]
-    // public async Task<IActionResult> GetQuestionsRaw()
-    // {
-    //     var items = await _context.Questions
-    //         .FromSqlRaw("SELECT * FROM \"Questions\"")
-    //         .ToListAsync();
-    //     
-    //     return Ok(items);
-    // }
-    
-    // [HttpGet]
-    // public async Task<IActionResult> GetQuestions()
-    // {
-    //     var items = await _context.Questions
-    //         .FromSqlRaw("SELECT * FROM \"Questions\"")
-    //         .Select(question => question.QuestionText)
-    //         .ToListAsync();
-    //     
-    //     return Ok(items);
-    // }
+    private readonly IMemoryCache _cache;
+    public QuestionsController(TriviaDbContext context, IMemoryCache cache)
+    {
+        _context = context;
+        _cache = cache;
+    }
 
+    private const int CACHE_SIZE = 100;
+    private const int CACHE_LIFETIME_MINUTES = 10;
+    
     [HttpGet("question")]
     public async Task<IActionResult> GetQuestion()
     {
-        if (questionCache.Count == 0)
+        if (!_cache.TryGetValue(typeof(TriviaQuestion), out HashSet<TriviaQuestion> questions))
+        {
             await PrepareQuestions();
+            questions = _cache.Get<HashSet<TriviaQuestion>>(typeof(TriviaQuestion));
+        }
         
-        var item = questionCache.ElementAt(new Random().Next(questionCache.Count));
-        
-        return Ok(item);
+        return Ok(questions.ElementAt(new Random().Next(questions.Count)));
     }
 
-    // [HttpGet("answers {questionId}")]
-    // public async Task<IActionResult> GetAnswers(int questionId)
-    // {
-    //     
-    // }
+    [HttpGet("answers/{questionId}")]
+    public async Task<IActionResult> GetAnswers(int questionId)
+    {
+        if (!_cache.TryGetValue(typeof(TriviaAnswer), out HashSet<TriviaAnswer> answers))
+        {
+            await PrepareQuestions();
+            
+            answers = _cache.Get<HashSet<TriviaAnswer>>(typeof(TriviaAnswer));
+        }
+        
+        return Ok(answers
+            .Where(answer => answer.QuestionId == questionId)
+            .ToHashSet());
+    }
 
     [HttpPost]
     public async Task<IActionResult> PrepareQuestions()
     {
-        var items = await _context.Questions
-            .FromSqlRaw("SELECT * FROM \"Questions\" ORDER BY random() LIMIT {0}", QUESTION_CACHE_SIZE)
+        var questions = await _context.Questions
+            .FromSqlRaw("SELECT * FROM \"Questions\" ORDER BY random() LIMIT {0}", CACHE_SIZE)
             .ToHashSetAsync();
         
-        questionCache = items;
+        _cache.Set(typeof(TriviaQuestion), questions,
+            TimeSpan.FromMinutes(CACHE_LIFETIME_MINUTES));
+
+        var questionsIds = questions.Select(q => q.Id)
+            .ToArray();
         
-        return Ok("Question cache prepared");
+        var answers = await _context.Answers
+            .FromSqlRaw("select * from \"Answers\" " +
+                        "where \"QuestionID\" = any({0})", questionsIds)
+            .ToHashSetAsync();
+        
+        _cache.Set(typeof(TriviaAnswer), answers,
+            TimeSpan.FromMinutes(CACHE_LIFETIME_MINUTES));
+        
+        return Ok("Cache prepared");
     }
 }
