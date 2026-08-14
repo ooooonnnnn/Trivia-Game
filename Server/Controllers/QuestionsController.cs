@@ -14,29 +14,32 @@ public class QuestionsController : ControllerBase
     private HashSet<TriviaQuestion> questionCache = [];
     
     // [HttpGet("raw")]
-    public async Task<IActionResult> GetQuestionsRaw()
-    {
-        var items = await _context.Questions
-            .FromSqlRaw("SELECT * FROM \"Questions\"")
-            .ToListAsync();
-        
-        return Ok(items);
-    }
+    // public async Task<IActionResult> GetQuestionsRaw()
+    // {
+    //     var items = await _context.Questions
+    //         .FromSqlRaw("SELECT * FROM \"Questions\"")
+    //         .ToListAsync();
+    //     
+    //     return Ok(items);
+    // }
     
     // [HttpGet]
-    public async Task<IActionResult> GetQuestions()
-    {
-        var items = await _context.Questions
-            .FromSqlRaw("SELECT * FROM \"Questions\"")
-            .Select(question => question.QuestionText)
-            .ToListAsync();
-        
-        return Ok(items);
-    }
+    // public async Task<IActionResult> GetQuestions()
+    // {
+    //     var items = await _context.Questions
+    //         .FromSqlRaw("SELECT * FROM \"Questions\"")
+    //         .Select(question => question.QuestionText)
+    //         .ToListAsync();
+    //     
+    //     return Ok(items);
+    // }
 
     [HttpGet("question")]
     public async Task<IActionResult> GetQuestion()
     {
+        if (questionCache.Count == 0)
+            await PrepareQuestions();
+        
         var item = questionCache.ElementAt(new Random().Next(questionCache.Count));
         
         return Ok(item);
