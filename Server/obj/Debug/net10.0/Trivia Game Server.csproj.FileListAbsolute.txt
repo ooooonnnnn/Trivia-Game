@@ -1,0 +1,34 @@
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\appsettings.Development.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\appsettings.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Trivia Game Server.staticwebassets.endpoints.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Trivia Game Server.exe
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Trivia Game Server.deps.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Trivia Game Server.runtimeconfig.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Trivia Game Server.dll
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Trivia Game Server.pdb
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Microsoft.AspNetCore.OpenApi.dll
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\bin\Debug\net10.0\Microsoft.OpenApi.dll
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.csproj.AssemblyReference.cache
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.AssemblyInfoInputs.cache
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.AssemblyInfo.cs
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.csproj.CoreCompileInputs.cache
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.sourcelink.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\rjimswa.dswa.cache.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\scopedcss\bundle\Trivia Game Server.styles.css
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\staticwebassets.build.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\staticwebassets.build.json.cache
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\staticwebassets.development.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\staticwebassets.build.endpoints.json
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\swae.build.ex.cache
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia G.B847CF9F.Up2Date
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.dll
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\refint\Trivia Game Server.dll
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.pdb
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\Trivia Game Server.genruntimeconfig.cache
+C:\Users\omrit\Documents\Trivia Game\ProfilerCaptures\Trivia Game\Server\obj\Debug\net10.0\ref\Trivia Game Server.dll
