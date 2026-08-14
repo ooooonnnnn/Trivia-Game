@@ -10,14 +10,14 @@ public class QuestionsController : ControllerBase
 {
     private readonly TriviaDbContext _context;
     private readonly IMemoryCache _cache;
+    private const int CACHE_SIZE = 100;
+    private const int CACHE_LIFETIME_MINUTES = 10;
+
     public QuestionsController(TriviaDbContext context, IMemoryCache cache)
     {
         _context = context;
         _cache = cache;
     }
-
-    private const int CACHE_SIZE = 100;
-    private const int CACHE_LIFETIME_MINUTES = 10;
     
     [HttpGet("question")]
     public async Task<IActionResult> GetQuestion()
