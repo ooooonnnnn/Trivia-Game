@@ -34,7 +34,7 @@ public class MatchController : ControllerBase
 
             player = newPlayer[0];
             
-            //TODO: add player to match
+            await AddPlayerToOpenMatchOrCreate(player);
             return Ok(player);
         }
         player = registeredPlayers.First();
@@ -42,7 +42,8 @@ public class MatchController : ControllerBase
         //Check player not in match
         var playersInActiveMatch = await _context.PlayersInMatches
             .FromSqlRaw("select * from \"PlayersInMatches\" where \"MatchID\" in " +
-                        "(select \"MatchID\" from \"Matches\" where \"IsActive\" = true) " +
+                        "(select \"MatchID\" from \"Matches\" where " +
+                        "(\"IsActive\" = true or \"IsCompleted\" = false)) " +
                         "and \"PlayerID\" = {0}", player.Id)
             .ToHashSetAsync();
 
@@ -51,13 +52,54 @@ public class MatchController : ControllerBase
         {
             return Conflict("Already in a match");
         }
-        
+
+        await AddPlayerToOpenMatchOrCreate(player);
         return Ok(player);
     }
 
-    // [HttpGet("match/can-start/{matchId}")]
-    // public async Task<IActionResult> CanStartMatch(int matchId)
-    // {
-    //     var foundMatch = await _context.
-    // }
+    private async Task<TriviaMatch?> FindOpenMatch()
+    {
+        var foundMatches = await _context.Matches
+            .FromSqlRaw("SELECT m.* " +
+                        "FROM \"Matches\" m " +
+                        "JOIN \"GameSettings\" gs ON true " +
+                        "where m.\"IsCompleted\" = false " +
+                        "and ( " +
+                        "  select count(*) " +
+                        "from \"PlayersInMatches\" " +
+                        "where \"MatchID\" = m.id" +
+                        ") < gs.\"MaxPlayers\" " +
+                        "limit 1")
+            .ToListAsync();
+
+        if (foundMatches.Count == 0)
+            return null;
+        
+        return foundMatches[0];
+    }
+
+    private async Task AddPlayerToOpenMatchOrCreate(TriviaPlayer player)
+    {
+        var openMatch = await FindOpenMatch();
+        TriviaMatch matchToJoin;
+        
+        if (openMatch != null)
+        {
+            matchToJoin = openMatch;
+        }
+        else
+        {
+            matchToJoin = (await _context.Matches
+                .FromSqlRaw("insert into \"Matches\" (\"IsActive\", \"IsCompleted\", \"Winner_PlayerID\") " +
+                            "values (false, false, null) " +
+                            "returning *")
+                .ToListAsync()).First();
+        }
+        
+        //put player in match
+        await _context.PlayersInMatches
+            .FromSqlRaw("insert into \"PlayersInMatches\" (\"MatchID\", \"PlayerID\") " +
+                        "values ({0}, {1}) returning *", matchToJoin.Id, player.Id)
+            .ToListAsync();
+    }
 }
