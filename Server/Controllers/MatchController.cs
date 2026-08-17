@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Trivia_Game_Server.Controllers;
 
@@ -8,6 +9,7 @@ namespace Trivia_Game_Server.Controllers;
 public class MatchController : ControllerBase
 {
     private readonly TriviaDbContext _context;
+    private readonly Lock _startMatchLock = new();
     
     public MatchController(TriviaDbContext context)
     {
@@ -101,5 +103,22 @@ public class MatchController : ControllerBase
             .FromSqlRaw("insert into \"PlayersInMatches\" (\"MatchID\", \"PlayerID\") " +
                         "values ({0}, {1}) returning *", matchToJoin.Id, player.Id)
             .ToListAsync();
+        
+        //try to start the match
+        lock (_startMatchLock)
+        {
+            StartMatchesWithEnoughPlayers();
+        }
+    }
+
+    private async Task StartMatchesWithEnoughPlayers()
+    {
+        await _context.Database.ExecuteSqlRawAsync("update \"Matches\" set \"IsActive\" = true " +
+                                                   "where \"IsActive\" = false " +
+                                             "and id in (" +
+                                             "  select \"MatchID\" from (" +
+                                             "    select Count(*) c, \"MatchID\" from \"PlayersInMatches\" group by \"MatchID\"" +
+                                             "  ) where c >= " +
+                                             "    (select \"MinPlayers\" from \"GameSettings\" limit 1))");
     }
 }
