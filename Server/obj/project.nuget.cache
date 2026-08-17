@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "myrUxkAjSMQ=",
+  "dgSpecHash": "cmpmDwIPPTk=",
   "success": true,
-  "projectFilePath": "C:\\Users\\omrit\\Documents\\Trivia Game\\ProfilerCaptures\\Trivia Game\\Server\\Trivia Game Server.csproj",
+  "projectFilePath": "C:\\Users\\omrit\\Documents\\Trivia Game\\Server\\Trivia Game Server.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\omrit\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.5\\microsoft.aspnetcore.openapi.10.0.5.nupkg.sha512",
     "C:\\Users\\omrit\\.nuget\\packages\\microsoft.entityframeworkcore\\10.0.4\\microsoft.entityframeworkcore.10.0.4.nupkg.sha512",

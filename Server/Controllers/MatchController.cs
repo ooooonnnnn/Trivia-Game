@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -57,6 +58,18 @@ public class MatchController : ControllerBase
 
         await AddPlayerToOpenMatchOrCreate(player);
         return Ok(player);
+    }
+
+    [HttpGet("is-active/{matchId}")]
+    public async Task<IActionResult> IsMatchActive(int matchId)
+    {
+        Stopwatch sw = Stopwatch.StartNew();
+        var foundMatch = await _context.Matches.FindAsync(matchId);
+        if (foundMatch == null)
+            return NotFound();
+        
+        Console.WriteLine($"Match {matchId} found in {sw.ElapsedMilliseconds}ms");
+        return Ok(foundMatch.IsActive);
     }
 
     private async Task<TriviaMatch?> FindOpenMatch()
