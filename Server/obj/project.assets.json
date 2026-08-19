@@ -683,11 +683,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\omrit\\Documents\\Trivia Game\\ProfilerCaptures\\Trivia Game\\Server\\Trivia Game Server.csproj",
+      "projectUniqueName": "C:\\Users\\omrit\\Documents\\Trivia Game\\Server\\Trivia Game Server.csproj",
       "projectName": "Trivia Game Server",
-      "projectPath": "C:\\Users\\omrit\\Documents\\Trivia Game\\ProfilerCaptures\\Trivia Game\\Server\\Trivia Game Server.csproj",
+      "projectPath": "C:\\Users\\omrit\\Documents\\Trivia Game\\Server\\Trivia Game Server.csproj",
       "packagesPath": "C:\\Users\\omrit\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\omrit\\Documents\\Trivia Game\\ProfilerCaptures\\Trivia Game\\Server\\obj\\",
+      "outputPath": "C:\\Users\\omrit\\Documents\\Trivia Game\\Server\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
