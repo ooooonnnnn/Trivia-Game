@@ -13,6 +13,7 @@ public class LoginManager : MonoBehaviour
     public UnityEvent OnLoginSuccess;
     public UnityEvent OnStartLogin;
     private MatchData _currentMatch = null;
+    private const string BASE_URL = "http://localhost:5246";
 
     public string PlayerName
     {
@@ -30,7 +31,7 @@ public class LoginManager : MonoBehaviour
     private IEnumerator LoginCor()
     {
         UnityWebRequest loginRequest = UnityWebRequest.PostWwwForm(
-            $"http://localhost:5246/Match/login/{_playerName}", ""
+            $"{BASE_URL}/Match/login/{_playerName}", ""
         );
         
         OnStartLogin.Invoke();
@@ -49,16 +50,18 @@ public class LoginManager : MonoBehaviour
         print(_currentMatch.id);
     }
 
-    private IEnumerator OnApplicationQuit()
+    private void OnApplicationQuit()
     {
         print("OnQuit");
-        yield break;
+        Logout();
     }
 
     public void Logout() => StartCoroutine(LogoutCor());
     
     public IEnumerator LogoutCor()
     {
-        
+        var logoutRequest = UnityWebRequest.Post(
+            $"{BASE_URL}/Match/logout/{_playerName}", "");
+        yield return logoutRequest.SendWebRequest();
     }
 }
