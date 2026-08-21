@@ -28,6 +28,7 @@ public class MatchController : ControllerBase
             .ToListAsync();
 
         TriviaPlayer player;
+        TriviaMatch matchJoined;
         if (registeredPlayers.Count == 0)
         {
             var newPlayer = await _context.Players
@@ -37,8 +38,8 @@ public class MatchController : ControllerBase
 
             player = newPlayer[0];
             
-            await AddPlayerToOpenMatchOrCreate(player);
-            return Ok(player);
+            matchJoined = await AddPlayerToOpenMatchOrCreate(player);
+            return Ok(matchJoined);
         }
         player = registeredPlayers.First();
         
@@ -56,8 +57,18 @@ public class MatchController : ControllerBase
             return Conflict("Already in a match");
         }
 
-        await AddPlayerToOpenMatchOrCreate(player);
-        return Ok(player);
+        matchJoined = await AddPlayerToOpenMatchOrCreate(player);
+        return Ok(matchJoined);
+    }
+
+    [HttpPost("logout/{playerName}")]
+    public async Task<IActionResult> Logout(string playerName)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "delete from \"PlayersInMatches\" where \"PlayerID\" in (" +
+            "  select id from \"Players\" where \"Name\" = {0})", playerName);
+
+        return Ok();
     }
 
     [HttpGet("is-active/{matchId}")]
@@ -91,7 +102,7 @@ public class MatchController : ControllerBase
         return foundMatches[0];
     }
 
-    private async Task AddPlayerToOpenMatchOrCreate(TriviaPlayer player)
+    private async Task<TriviaMatch> AddPlayerToOpenMatchOrCreate(TriviaPlayer player)
     {
         var openMatch = await FindOpenMatch();
         TriviaMatch matchToJoin;
@@ -120,6 +131,8 @@ public class MatchController : ControllerBase
         {
             StartMatchesWithEnoughPlayers();
         }
+        
+        return matchToJoin;
     }
 
     private async Task StartMatchesWithEnoughPlayers()

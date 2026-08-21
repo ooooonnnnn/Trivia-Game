@@ -1,13 +1,19 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Events;
 using UnityEngine.Networking;
+using System.Collections.Generic;
+using DataTypes;
 
 public class LoginManager : MonoBehaviour
 {
     public UnityEvent<string> OnLoginFail;
     public UnityEvent OnLoginSuccess;
+    public UnityEvent OnStartLogin;
+    private MatchData _currentMatch = null;
+    private const string BASE_URL = "http://localhost:5246";
 
     public string PlayerName
     {
@@ -25,9 +31,10 @@ public class LoginManager : MonoBehaviour
     private IEnumerator LoginCor()
     {
         UnityWebRequest loginRequest = UnityWebRequest.PostWwwForm(
-            $"http://localhost:5246/Match/login/{_playerName}", ""
+            $"{BASE_URL}/Match/login/{_playerName}", ""
         );
         
+        OnStartLogin.Invoke();
         yield return loginRequest.SendWebRequest();
 
         if (loginRequest.result != UnityWebRequest.Result.Success)
@@ -38,6 +45,23 @@ public class LoginManager : MonoBehaviour
         }
         
         OnLoginSuccess.Invoke();
-        print("Logged in");
+        var text = loginRequest.downloadHandler.text;
+        _currentMatch = JsonUtility.FromJson<MatchData>(text);
+        print(_currentMatch.id);
+    }
+
+    private void OnApplicationQuit()
+    {
+        print("OnQuit");
+        Logout();
+    }
+
+    public void Logout() => StartCoroutine(LogoutCor());
+    
+    public IEnumerator LogoutCor()
+    {
+        var logoutRequest = UnityWebRequest.Post(
+            $"{BASE_URL}/Match/logout/{_playerName}", "");
+        yield return logoutRequest.SendWebRequest();
     }
 }
