@@ -30,17 +30,15 @@ namespace DefaultNamespace
                  (numAttempts < maxPollAttempts) || !LimitPollAttempts;
                  numAttempts++)
             {
-                UnityWebRequest matchreadyReq = UnityWebRequest.Get(
+                UnityWebRequest matchReadyReq = UnityWebRequest.Get(
                     $"http://localhost:5246/Match/is-active/{matchId}");
-            
-                var request = matchreadyReq;
 
-                yield return request.SendWebRequest();
+                yield return matchReadyReq.SendWebRequest();
                 
-                if (request.result != UnityWebRequest.Result.Success)
+                if (matchReadyReq.result != UnityWebRequest.Result.Success)
                     continue;
                 
-                var resultText = request.downloadHandler.text;
+                var resultText = matchReadyReq.downloadHandler.text;
                 
                 print(resultText);
                 if (resultText == "true")
