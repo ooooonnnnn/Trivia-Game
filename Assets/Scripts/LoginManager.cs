@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -46,5 +47,18 @@ public class LoginManager : MonoBehaviour
         var text = loginRequest.downloadHandler.text;
         _currentMatch = JsonUtility.FromJson<MatchData>(text);
         print(_currentMatch.id);
+    }
+
+    private IEnumerator OnApplicationQuit()
+    {
+        print("OnQuit");
+        yield break;
+    }
+
+    public void Logout() => StartCoroutine(LogoutCor());
+    
+    public IEnumerator LogoutCor()
+    {
+        
     }
 }

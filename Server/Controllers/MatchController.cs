@@ -61,6 +61,16 @@ public class MatchController : ControllerBase
         return Ok(matchJoined);
     }
 
+    [HttpPost("logout/{playerName}")]
+    public async Task<IActionResult> Logout(string playerName)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "delete from \"PlayersInMatches\" where \"PlayerID\" in (" +
+            "  select id from \"Players\" where \"Name\" = {0})", playerName);
+
+        return Ok();
+    }
+
     [HttpGet("is-active/{matchId}")]
     public async Task<IActionResult> IsMatchActive(int matchId)
     {
