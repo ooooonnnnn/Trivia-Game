@@ -63,12 +63,10 @@ public class MatchController : ControllerBase
     [HttpGet("is-active/{matchId}")]
     public async Task<IActionResult> IsMatchActive(int matchId)
     {
-        Stopwatch sw = Stopwatch.StartNew();
         var foundMatch = await _context.Matches.FindAsync(matchId);
         if (foundMatch == null)
             return NotFound();
         
-        Console.WriteLine($"Match {matchId} found in {sw.ElapsedMilliseconds}ms");
         return Ok(foundMatch.IsActive);
     }
 
