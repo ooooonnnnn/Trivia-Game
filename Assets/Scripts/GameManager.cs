@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
         foreach (var question in _questions)
         {
             print(question.questionText);
+            matchUI.SetQuestion(question);
             yield return new WaitForSeconds(2);
         }
     }
