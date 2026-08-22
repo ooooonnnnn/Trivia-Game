@@ -6,12 +6,14 @@ using UnityEngine.Events;
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using DataTypes;
+using DefaultNamespace;
 
 public class LoginManager : MonoBehaviour
 {
     public UnityEvent<string> OnLoginFail;
     public UnityEvent OnLoginSuccess;
     public UnityEvent OnStartLogin;
+    [SerializeField] private MatchReadyPoller matchReadyPoller;
     private MatchData _currentMatch = null;
     private const string BASE_URL = "http://localhost:5246";
 
@@ -47,6 +49,7 @@ public class LoginManager : MonoBehaviour
         OnLoginSuccess.Invoke();
         var text = loginRequest.downloadHandler.text;
         _currentMatch = JsonUtility.FromJson<MatchData>(text);
+        matchReadyPoller.StartPoll(_currentMatch.id);
         print(_currentMatch.id);
     }
 

@@ -1671,6 +1671,7 @@ MonoBehaviour:
     GameObject: {fileID: 1967201107}
   - Screen: 2
     GameObject: {fileID: 2066305533}
+  waitingText: {fileID: 369912066}
 --- !u!4 &922077235
 Transform:
   m_ObjectHideFlags: 0
@@ -3042,7 +3043,19 @@ MonoBehaviour:
   maxPollAttempts: 10
   OnMatchReady:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 922077234}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: ShowGameScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &1900433293
 Transform:
   m_ObjectHideFlags: 0
@@ -3090,7 +3103,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 922077234}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: ShowGameScreen
+        m_MethodName: ShowWaitingForMatch
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3105,7 +3118,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 922077234}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: ShowWaitScreen
+        m_MethodName: ShowLoggingIn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3115,6 +3128,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  matchReadyPoller: {fileID: 1900433292}
 --- !u!1 &1967201107
 GameObject:
   m_ObjectHideFlags: 0
