@@ -113,11 +113,22 @@ public class MatchController : ControllerBase
         }
         else
         {
+            //create new match
             matchToJoin = (await _context.Matches
                 .FromSqlRaw("insert into \"Matches\" (\"IsActive\", \"IsCompleted\", \"Winner_PlayerID\") " +
                             "values (false, false, null) " +
                             "returning *")
                 .ToListAsync()).First();
+            //add questions to the match
+            var matchId = matchToJoin.Id;
+            await _context.Database.ExecuteSqlRawAsync(
+                "INSERT INTO \"QuestionsInMatches\" (\"MatchID\", \"QuestionID\") " +
+                "SELECT" +
+                "    {0},                " +
+                "    q.id " +
+                "FROM \"Questions\" q " +
+                "ORDER BY random() " +
+                "LIMIT (SELECT \"QuestionsPerGame\" FROM \"GameSettings\" LIMIT 1);", matchId);
         }
         
         //put player in match
