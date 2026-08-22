@@ -9,6 +9,8 @@ public class GameManager : MonoBehaviour
     public int matchID;
     [SerializeField] private MatchUI matchUI;
     private Dictionary<Question, Answer[]> _questions = new();
+    private int questioCounter = 0;
+    private bool moveNext = false;
 
     [ContextMenu( "Start Game" )]
     public void StartGame()
@@ -19,12 +21,17 @@ public class GameManager : MonoBehaviour
     private IEnumerator GameCor()
     {
         yield return GetQuestions();
-
+        
         foreach (var question in _questions)
         {
+            moveNext = false;
             print(question.Key.questionText);
             matchUI.SetQuestion(question.Key);
-            yield return new WaitForSeconds(2);
+            matchUI.SetAnswers(question.Value, HandleCorrectAnswer, HandleWrongAnswer);
+            while (!moveNext)
+            {
+                yield return null;
+            }
         }
     }
 
@@ -53,5 +60,17 @@ public class GameManager : MonoBehaviour
             
             _questions.Add(question, answers);
         }
+    }
+
+    public void HandleCorrectAnswer()
+    {
+        print("Correct");
+        moveNext = true;
+    }
+
+    public void HandleWrongAnswer()
+    {
+        print("Wrong");
+        moveNext = true;
     }
 }
