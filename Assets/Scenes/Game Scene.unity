@@ -1000,6 +1000,52 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!1 &495876377
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 495876379}
+  - component: {fileID: 495876378}
+  m_Layer: 0
+  m_Name: Game Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &495876378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495876377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7bef489f6d5d942b1b92887a9a06ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  matchID: 0
+  matchUI: {fileID: 2066305538}
+--- !u!4 &495876379
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495876377}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 648.8501, y: 433.99976, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &708198880
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1671,6 +1717,7 @@ MonoBehaviour:
     GameObject: {fileID: 1967201107}
   - Screen: 2
     GameObject: {fileID: 2066305533}
+  waitingText: {fileID: 369912066}
 --- !u!4 &922077235
 Transform:
   m_ObjectHideFlags: 0
@@ -3042,7 +3089,31 @@ MonoBehaviour:
   maxPollAttempts: 10
   OnMatchReady:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 922077234}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: ShowGameScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 495876378}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: StartGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &1900433293
 Transform:
   m_ObjectHideFlags: 0
@@ -3090,7 +3161,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 922077234}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: ShowGameScreen
+        m_MethodName: ShowWaitingForMatch
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3105,7 +3176,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 922077234}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: ShowWaitScreen
+        m_MethodName: ShowLoggingIn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3115,6 +3186,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  matchReadyPoller: {fileID: 1900433292}
+  gameManager: {fileID: 495876378}
 --- !u!1 &1967201107
 GameObject:
   m_ObjectHideFlags: 0
@@ -3230,6 +3303,7 @@ GameObject:
   - component: {fileID: 2066305536}
   - component: {fileID: 2066305535}
   - component: {fileID: 2066305534}
+  - component: {fileID: 2066305538}
   m_Layer: 5
   m_Name: Match UI
   m_TagString: Untagged
@@ -3324,6 +3398,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2066305538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2066305533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 207ea93bdfd70a8458b1e47b3d125d0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  QuestionText: {fileID: 883568364}
 --- !u!1001 &1151930794660089123
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3441,4 +3528,5 @@ SceneRoots:
   - {fileID: 1869333846}
   - {fileID: 1900433293}
   - {fileID: 922077235}
+  - {fileID: 495876379}
   - {fileID: 824370620}

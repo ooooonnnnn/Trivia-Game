@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using DataTypes;
+using TMPro;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] List<UIScreen_GameObject_Pair> UIScreens;
+    [SerializeField] TMP_Text waitingText;
     private Dictionary<UIScreen, GameObject> _UIScreens;
 
     private void Awake()
@@ -19,8 +21,18 @@ public class UIManager : MonoBehaviour
         ShowScreen(UIScreen.Login);
     }
     
-    public void ShowWaitScreen() => ShowScreen(UIScreen.Waiting);
-    
+    public void ShowLoggingIn()
+    {
+        ShowScreen(UIScreen.Waiting);
+        waitingText.text = "Logging in...";
+    }
+
+    public void ShowWaitingForMatch()
+    {
+        ShowScreen(UIScreen.Waiting);
+        waitingText.text = "Waiting for match to begin...";
+    }
+
     public void ShowGameScreen() => ShowScreen(UIScreen.Game);
     
     public void ShowLoginScreen() => ShowScreen(UIScreen.Login);

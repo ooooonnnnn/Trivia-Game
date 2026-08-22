@@ -6,14 +6,17 @@ using UnityEngine.Events;
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using DataTypes;
+using DefaultNamespace;
 
 public class LoginManager : MonoBehaviour
 {
     public UnityEvent<string> OnLoginFail;
     public UnityEvent OnLoginSuccess;
     public UnityEvent OnStartLogin;
+    [SerializeField] private MatchReadyPoller matchReadyPoller;
+    [SerializeField] private GameManager gameManager;
     private MatchData _currentMatch = null;
-    private const string BASE_URL = "http://localhost:5246";
+    public const string BASE_URL = "http://localhost:5246";
 
     public string PlayerName
     {
@@ -47,7 +50,9 @@ public class LoginManager : MonoBehaviour
         OnLoginSuccess.Invoke();
         var text = loginRequest.downloadHandler.text;
         _currentMatch = JsonUtility.FromJson<MatchData>(text);
-        print(_currentMatch.id);
+        matchReadyPoller.StartPoll(_currentMatch.id);
+        gameManager.matchID = _currentMatch.id;
+        print($"connected to {_currentMatch.id}");
     }
 
     private void OnApplicationQuit()
