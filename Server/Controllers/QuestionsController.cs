@@ -26,4 +26,15 @@ public class QuestionsController : ControllerBase
         
         return Ok(answers);
     }
+
+    [HttpGet("questions-in-match/{matchId}")]
+    public async Task<IActionResult> GetQuestions(int matchId)
+    {
+        var questions = await _context.Questions.FromSqlRaw(
+                "Select * from \"Questions\" Where id in (" +
+                "  select \"QuestionID\" from \"QuestionsInMatches\" where \"MatchID\" = {0})", matchId)
+            .ToListAsync();
+        
+        return Ok(questions);
+    }
 }

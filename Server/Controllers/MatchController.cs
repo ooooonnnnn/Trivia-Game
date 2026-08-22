@@ -78,7 +78,7 @@ public class MatchController : ControllerBase
         if (foundMatch == null)
             return NotFound();
         
-        return Ok(foundMatch.IsActive);
+        return Ok((foundMatch.IsActive && !foundMatch.IsCompleted));
     }
 
     private async Task<TriviaMatch?> FindOpenMatch()
