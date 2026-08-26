@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DataTypes;
+using ooooonnnnn.ui;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -9,7 +10,14 @@ public class MatchUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text questionText;
     [SerializeField] private Transform answerContainer; 
-    [SerializeField] private AnswerUIElement answerUIPrefab; 
+    [SerializeField] private AnswerUIElement answerUIPrefab;
+    [SerializeField] private NumberDisplay questionNumber;
+
+    public void SetQuestionNumber(int current, int total)
+    {
+        questionNumber.SetNumber(current, 0);
+        questionNumber.SetNumber(total, 1);
+    }
     
     public void SetQuestion(Question question)
     {

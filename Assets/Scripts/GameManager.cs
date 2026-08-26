@@ -27,7 +27,9 @@ public class GameManager : MonoBehaviour
             moveNext = false;
             print(question.Key.questionText);
             matchUI.SetQuestion(question.Key);
+            matchUI.SetQuestionNumber(++questioCounter, _questions.Count);
             matchUI.SetAnswers(question.Value, HandleCorrectAnswer, HandleWrongAnswer);
+            
             while (!moveNext)
             {
                 yield return null;

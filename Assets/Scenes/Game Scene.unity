@@ -2897,6 +2897,7 @@ MonoBehaviour:
   questionText: {fileID: 883568364}
   answerContainer: {fileID: 1350225496}
   answerUIPrefab: {fileID: -5449084848328074711, guid: d93ea7dd70bf42b489789d38cf86fec5, type: 3}
+  questionNumber: {fileID: 1293451829}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
