@@ -12,11 +12,17 @@ public class MatchUI : MonoBehaviour
     [SerializeField] private Transform answerContainer; 
     [SerializeField] private AnswerUIElement answerUIPrefab;
     [SerializeField] private NumberDisplay questionNumber;
+    [SerializeField] private NumberDisplay timer;
 
     public void SetQuestionNumber(int current, int total)
     {
         questionNumber.SetNumber(current, 0);
         questionNumber.SetNumber(total, 1);
+    }
+
+    public void SetTimer(float time)
+    {
+        timer.SetNumber(time);
     }
     
     public void SetQuestion(Question question)

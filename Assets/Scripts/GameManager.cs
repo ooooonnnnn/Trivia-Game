@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DataTypes;
@@ -11,6 +12,7 @@ public class GameManager : MonoBehaviour
     private Dictionary<Question, Answer[]> _questions = new();
     private int questioCounter = 0;
     private bool moveNext = false;
+    private event Action _OnTimerEnd;
 
     [ContextMenu( "Start Game" )]
     public void StartGame()
@@ -29,12 +31,29 @@ public class GameManager : MonoBehaviour
             matchUI.SetQuestion(question.Key);
             matchUI.SetQuestionNumber(++questioCounter, _questions.Count);
             matchUI.SetAnswers(question.Value, HandleCorrectAnswer, HandleWrongAnswer);
+            _OnTimerEnd = null;
+            _OnTimerEnd += HandleWrongAnswer;
+            _OnTimerEnd += () => moveNext = true;
+            var timerCor = StartCoroutine(TimerCor(1));
             
             while (!moveNext)
             {
                 yield return null;
             }
+            StopCoroutine(timerCor);
         }
+    }
+
+    private IEnumerator TimerCor(float initialTime)
+    {
+        var t = initialTime;
+        while (t > 0)
+        {
+            matchUI.SetTimer(t);
+            yield return null;
+            t -= Time.deltaTime;
+        }
+        _OnTimerEnd?.Invoke();
     }
 
     private IEnumerator GetQuestions()
