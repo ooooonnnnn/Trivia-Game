@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public int matchID;
     [SerializeField] private MatchUI matchUI;
     private Dictionary<Question, Answer[]> _questions = new();
+    private GameSettings _settings;
     private int questioCounter = 0;
     private bool moveNext = false;
     private event Action _OnTimerEnd;
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator GameCor()
     {
         yield return GetQuestions();
+        yield return GetSettings();
         
         foreach (var question in _questions)
         {
@@ -34,7 +36,7 @@ public class GameManager : MonoBehaviour
             _OnTimerEnd = null;
             _OnTimerEnd += HandleWrongAnswer;
             _OnTimerEnd += () => moveNext = true;
-            var timerCor = StartCoroutine(TimerCor(1));
+            var timerCor = StartCoroutine(TimerCor(_settings.timePerQuestion));
             
             while (!moveNext)
             {
@@ -81,6 +83,17 @@ public class GameManager : MonoBehaviour
             
             _questions.Add(question, answers);
         }
+    }
+
+    private IEnumerator GetSettings()
+    {
+        var settingsRequest = UnityWebRequest.Get(
+            $"{LoginManager.BASE_URL}/Settings");
+        
+        yield return settingsRequest.SendWebRequest();
+
+        _settings = JsonUtility.FromJson<GameSettings>(
+            settingsRequest.downloadHandler.text);
     }
 
     public void HandleCorrectAnswer()

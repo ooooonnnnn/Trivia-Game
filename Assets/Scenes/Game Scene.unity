@@ -1587,7 +1587,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Question 1/4
+  m_text: Question 0/0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1681,8 +1681,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ooooonnnnn.ui.NumberDisplay
   format: Question {0:0}/{1:0}
   numbers:
-  - 1
-  - 4
+  - 0
+  - 0
   text: {fileID: 1293451827}
 --- !u!1 &1298451929
 GameObject:
@@ -1854,7 +1854,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Time left: 0.31'
+  m_text: 'Time left: 0.00'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1948,7 +1948,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ooooonnnnn.ui.NumberDisplay
   format: 'Time left: {0:0.00}'
   numbers:
-  - 0.31
+  - 0
   text: {fileID: 1423936622}
 --- !u!1 &1503568983
 GameObject:
