@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Trivia Game Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bdd31a4585aa93054ea837e30d5d5edf730e4bdd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4a12b9be8d9040e5b5aee385160b80df3c3716ad")]
 [assembly: System.Reflection.AssemblyProductAttribute("Trivia Game Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Trivia Game Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

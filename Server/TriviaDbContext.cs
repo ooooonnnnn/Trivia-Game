@@ -11,6 +11,7 @@ public class TriviaDbContext : DbContext
     public DbSet<TriviaPlayer> Players { get; set; }
     public DbSet<Trivia_PlayersInMatches> PlayersInMatches { get; set; }
     public DbSet<TriviaMatch> Matches { get; set; }
+    public DbSet<TriviaSettings> Settings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

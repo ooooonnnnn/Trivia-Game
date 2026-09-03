@@ -1,16 +1,30 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DataTypes;
+using HelperDataTypes;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Networking;
 
 public class GameManager : MonoBehaviour
 {
     public int matchID;
+    [SerializeField] private UIManager uiManager;
     [SerializeField] private MatchUI matchUI;
+    [SerializeField] private ResultsUI resultsUI;
     private Dictionary<Question, Answer[]> _questions = new();
+    private GameSettings _settings;
     private int questioCounter = 0;
-    private bool moveNext = false;
+    private float _score = 0;
+    
+    private bool _moveNext = false;
+    private FloatContainer _timeLeft = new();
+    
+    private event Action _OnTimerEnd;
+
+    public UnityEvent OnCorrectAnswer;
+    public UnityEvent OnWrongAnswer;
 
     [ContextMenu( "Start Game" )]
     public void StartGame()
@@ -21,18 +35,43 @@ public class GameManager : MonoBehaviour
     private IEnumerator GameCor()
     {
         yield return GetQuestions();
+        yield return GetSettings();
         
         foreach (var question in _questions)
         {
-            moveNext = false;
+            _moveNext = false;
             print(question.Key.questionText);
             matchUI.SetQuestion(question.Key);
+            matchUI.SetQuestionNumber(++questioCounter, _questions.Count);
             matchUI.SetAnswers(question.Value, HandleCorrectAnswer, HandleWrongAnswer);
-            while (!moveNext)
+            _OnTimerEnd = null;
+            _OnTimerEnd += HandleWrongAnswer;
+            _OnTimerEnd += () => _moveNext = true;
+            var timerCor = StartCoroutine(TimerCor(_settings.timePerQuestion, _timeLeft));
+            
+            while (!_moveNext)
             {
                 yield return null;
             }
+            StopCoroutine(timerCor);
         }
+        
+        resultsUI.UpdateScore(_score);
+        uiManager.ShowResultsScreen();
+    }
+
+    private IEnumerator TimerCor(float initialTime, FloatContainer timeLeft)
+    {
+        var t = initialTime;
+        timeLeft.value = t;
+        while (t > 0)
+        {
+            matchUI.SetTimer(t);
+            yield return null;
+            t -= Time.deltaTime;
+            timeLeft.value = t;
+        }
+        _OnTimerEnd?.Invoke();
     }
 
     private IEnumerator GetQuestions()
@@ -62,15 +101,30 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private IEnumerator GetSettings()
+    {
+        var settingsRequest = UnityWebRequest.Get(
+            $"{LoginManager.BASE_URL}/Settings");
+        
+        yield return settingsRequest.SendWebRequest();
+
+        _settings = JsonUtility.FromJson<GameSettings>(
+            settingsRequest.downloadHandler.text);
+    }
+
     public void HandleCorrectAnswer()
     {
         print("Correct");
-        moveNext = true;
+        _score += 10 * _timeLeft.value /  _settings.timePerQuestion;
+        print($"Gained score: {_score}");
+        _moveNext = true;
+        OnCorrectAnswer.Invoke();
     }
 
     public void HandleWrongAnswer()
     {
         print("Wrong");
-        moveNext = true;
+        _moveNext = true;
+        OnWrongAnswer.Invoke();
     }
 }

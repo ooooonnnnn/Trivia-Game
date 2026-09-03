@@ -4,6 +4,7 @@
     {
         Login,
         Waiting,
-        Game
+        Game,
+        Results
     }
 }
