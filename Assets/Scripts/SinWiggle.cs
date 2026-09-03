@@ -1,14 +1,19 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class SinWiggle : MonoBehaviour
 {
-    private Vector2 _initPos;
+    [SerializeField] private Vector2 initPos;
     [SerializeField] private float freqX, ampX, freqY, ampY, phase;
 
-    public void Start()
+    public void OnValidate()
     {
-        _initPos = transform.position;
+        initPos = transform.position;
+    }
+
+    private void OnEnable()
+    {
         StartCoroutine(WiggleCor());
     }
 
@@ -16,7 +21,7 @@ public class SinWiggle : MonoBehaviour
     {
         while (true)
         {
-            transform.position = _initPos
+            transform.position = initPos
                                  + ampX * Mathf.Sin(Time.time * 2 * Mathf.PI * freqX) * Vector2.right
                                  + ampY * Mathf.Sin(Time.time * 2 * Mathf.PI * freqY + phase) * Vector2.up;
             yield return null;
