@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DataTypes;
 using HelperDataTypes;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Networking;
 
 public class GameManager : MonoBehaviour
@@ -21,6 +22,9 @@ public class GameManager : MonoBehaviour
     private FloatContainer _timeLeft = new();
     
     private event Action _OnTimerEnd;
+
+    public UnityEvent OnCorrectAnswer;
+    public UnityEvent OnWrongAnswer;
 
     [ContextMenu( "Start Game" )]
     public void StartGame()
@@ -114,11 +118,13 @@ public class GameManager : MonoBehaviour
         _score += 10 * _timeLeft.value /  _settings.timePerQuestion;
         print($"Gained score: {_score}");
         _moveNext = true;
+        OnCorrectAnswer.Invoke();
     }
 
     public void HandleWrongAnswer()
     {
         print("Wrong");
         _moveNext = true;
+        OnWrongAnswer.Invoke();
     }
 }
