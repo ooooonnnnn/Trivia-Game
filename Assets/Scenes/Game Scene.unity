@@ -422,6 +422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac8734250d8f8e74a9746579da0f9ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SinWiggle
+  initPos: {x: 680.75, y: 432.75}
   freqX: 2.5
   ampX: 20
   freqY: 2.4
@@ -1655,10 +1656,34 @@ MonoBehaviour:
   resultsUI: {fileID: 1564241422}
   OnCorrectAnswer:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7885884}
+        m_TargetAssemblyTypeName: VXFController, Assembly-CSharp
+        m_MethodName: ShowCorrectEffect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   OnWrongAnswer:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7885884}
+        m_TargetAssemblyTypeName: VXFController, Assembly-CSharp
+        m_MethodName: ShowWrongEffect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!4 &495876379
 Transform:
   m_ObjectHideFlags: 0
@@ -2155,6 +2180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac8734250d8f8e74a9746579da0f9ad0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  initPos: {x: 680.75, y: 432.75}
   freqX: 0.5
   ampX: 50
   freqY: 1
