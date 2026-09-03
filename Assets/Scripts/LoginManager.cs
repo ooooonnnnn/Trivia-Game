@@ -63,7 +63,7 @@ public class LoginManager : MonoBehaviour
 
     public void Logout() => StartCoroutine(LogoutCor());
     
-    public IEnumerator LogoutCor()
+    private IEnumerator LogoutCor()
     {
         var logoutRequest = UnityWebRequest.Post(
             $"{BASE_URL}/Match/logout/{_playerName}", "");

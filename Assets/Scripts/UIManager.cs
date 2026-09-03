@@ -36,6 +36,7 @@ public class UIManager : MonoBehaviour
     public void ShowGameScreen() => ShowScreen(UIScreen.Game);
     
     public void ShowLoginScreen() => ShowScreen(UIScreen.Login);
+    public void ShowResultsScreen() => ShowScreen(UIScreen.Results);
 
     public void ShowScreen(UIScreen screen)
     {
