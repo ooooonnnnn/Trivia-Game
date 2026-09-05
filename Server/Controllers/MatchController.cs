@@ -81,6 +81,30 @@ public class MatchController : ControllerBase
         return Ok((foundMatch.IsActive && !foundMatch.IsCompleted));
     }
 
+    [HttpPost("finish-match/{playerId}/{matchId}")]
+    public async Task<IActionResult> PlayerFinishedMatch(int playerId, int matchId)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "update \"PlayersInMatches\" set \"IsPlayerDone\" = true " +
+            "where " +
+            "\"MatchID\" = {0} " +
+            "and " +
+            "\"PlayerID\" = {1}",
+            matchId, playerId);
+
+        return Ok();
+    }
+    
+    [HttpGet("is-complete/{matchId}")]
+    public async Task<IActionResult> IsMatchComplete(int matchId)
+    {
+        var foundMatch = await _context.Matches.FindAsync(matchId);
+        if (foundMatch == null)
+            return NotFound();
+        
+        return Ok((foundMatch.IsCompleted));
+    }
+
     private async Task<TriviaMatch?> FindOpenMatch()
     {
         var foundMatches = await _context.Matches

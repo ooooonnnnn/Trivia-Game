@@ -10,7 +10,6 @@ using UnityEngine.Networking;
 public class GameManager : MonoBehaviour
 {
     public int matchID;
-    [SerializeField] private UIManager uiManager;
     [SerializeField] private MatchUI matchUI;
     [SerializeField] private ResultsUI resultsUI;
     private Dictionary<Question, Answer[]> _questions = new();
@@ -25,6 +24,7 @@ public class GameManager : MonoBehaviour
 
     public UnityEvent OnCorrectAnswer;
     public UnityEvent OnWrongAnswer;
+    public UnityEvent OnGameEnd;
 
     [ContextMenu( "Start Game" )]
     public void StartGame()
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
         }
         
         resultsUI.UpdateLocalScore(_score);
-        uiManager.ShowResultsScreen();
+        OnGameEnd.Invoke();
     }
 
     private IEnumerator TimerCor(float initialTime, FloatContainer timeLeft)
