@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
             StopCoroutine(timerCor);
         }
         
-        resultsUI.UpdateScore(_score);
+        resultsUI.UpdateLocalScore(_score);
         uiManager.ShowResultsScreen();
     }
 

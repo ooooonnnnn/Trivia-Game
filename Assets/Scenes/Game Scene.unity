@@ -4078,6 +4078,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResultsUI
   scoreNumber: {fileID: 328810151}
+  playerScoreListContainer: {fileID: 2008616775}
+  playerScorePrefab: {fileID: 566947897499079644, guid: 9fa3eaa4061b8a04cb379679aa33d93e, type: 3}
 --- !u!1 &1599011636
 GameObject:
   m_ObjectHideFlags: 0
