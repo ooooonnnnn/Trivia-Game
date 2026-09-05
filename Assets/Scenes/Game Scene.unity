@@ -1818,7 +1818,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &540659610
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3279,7 +3279,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1382433313
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4079,6 +4079,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ResultsUI
   scoreNumber: {fileID: 328810151}
   playerScoreListContainer: {fileID: 2008616775}
+  winMessage: {fileID: 1599011636}
+  loseMessage: {fileID: 540659609}
+  waitingMessage: {fileID: 1382433312}
   playerScorePrefab: {fileID: 566947897499079644, guid: 9fa3eaa4061b8a04cb379679aa33d93e, type: 3}
 --- !u!1 &1599011636
 GameObject:

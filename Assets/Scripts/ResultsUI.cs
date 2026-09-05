@@ -7,6 +7,9 @@ public class ResultsUI : MonoBehaviour
 {
     [SerializeField] private NumberDisplay scoreNumber;
     [SerializeField] private Transform playerScoreListContainer;
+    [SerializeField] private GameObject winMessage;
+    [SerializeField] private GameObject loseMessage;
+    [SerializeField] private GameObject waitingMessage;
     [SerializeField] private NumberDisplay playerScorePrefab;
     
     public void UpdateLocalScore(float score) => scoreNumber.SetNumber(score);
@@ -14,6 +17,10 @@ public class ResultsUI : MonoBehaviour
     private void Start()
     {
         UpdatePlayerScoreList(new List<(string, float)>());
+        
+        winMessage.SetActive(false);
+        loseMessage.SetActive(false);
+        waitingMessage.SetActive(true);
     }
     
     [ContextMenu("Test Update Player Score List")]
@@ -28,6 +35,8 @@ public class ResultsUI : MonoBehaviour
             return;
         }
         
+        if (waitingMessage) waitingMessage.SetActive(false);
+        
         foreach (Transform child in playerScoreListContainer)
         {
             Destroy(child.gameObject);
@@ -40,5 +49,19 @@ public class ResultsUI : MonoBehaviour
             newRow.format = $"{playerScore.Item1}: {{0:N1}}";
             newRow.SetNumber(playerScore.Item2);
         }
+    }
+    
+    [ContextMenu("Show Win Message")]
+    public void ShowWinMessage()
+    {
+        winMessage.SetActive(true);
+        loseMessage.SetActive(false);
+    }
+
+    [ContextMenu("Show Lose Message")]
+    public void ShowLoseMessage()
+    {
+        loseMessage.SetActive(true);
+        winMessage.SetActive(false);
     }
 }
