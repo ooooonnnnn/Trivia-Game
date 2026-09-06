@@ -39,7 +39,9 @@ public class MatchController : ControllerBase
             player = newPlayer[0];
             
             matchJoined = await AddPlayerToOpenMatchOrCreate(player);
-            return Ok(matchJoined);
+            
+            return Ok(
+                new List<int>{ player.Id, matchJoined.Id } );
         }
         player = registeredPlayers.First();
         
@@ -85,11 +87,24 @@ public class MatchController : ControllerBase
     public async Task<IActionResult> PlayerFinishedMatch(int playerId, int matchId)
     {
         await _context.Database.ExecuteSqlRawAsync(
-            "update \"PlayersInMatches\" set \"IsPlayerDone\" = true " +
-            "where " +
-            "\"MatchID\" = {0} " +
-            "and " +
-            "\"PlayerID\" = {1}",
+            "BEGIN; " +
+            "" +
+            "UPDATE \"PlayersInMatches\" " +
+            "SET \"IsPlayerDone\" = true " +
+            "WHERE \"PlayerID\" = {1}" +
+            "  AND \"MatchID\" = {0}; " +
+            "" +
+            "UPDATE \"Matches\" " +
+            "SET \"IsCompleted\" = true " +
+            "WHERE \"id\" = {0}" +
+            "  AND NOT EXISTS (" +
+            "    SELECT 1" +
+            "    FROM \"PlayersInMatches\"" +
+            "    WHERE \"MatchID\" = {0}" +
+            "      AND \"IsPlayerDone\" = false" +
+            "  ); " +
+            "" +
+            "COMMIT;",
             matchId, playerId);
 
         return Ok();
