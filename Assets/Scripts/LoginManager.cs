@@ -49,6 +49,12 @@ public class LoginManager : MonoBehaviour
         
         OnLoginSuccess.Invoke();
         var text = loginRequest.downloadHandler.text;
+        if (loginRequest.result != UnityWebRequest.Result.Success)
+        {
+            print($"Login failed: {loginRequest.error}");
+            yield break;
+        }
+        
         var loginResult = JsonUtility.FromJson<IntArrayContainer>("{\"array\": " + text + "}").array;
         gameManager.playerID = loginResult[0];
         gameManager.matchID = loginResult[1];

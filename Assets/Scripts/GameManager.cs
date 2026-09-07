@@ -58,13 +58,22 @@ public class GameManager : MonoBehaviour
         }
         
         resultsUI.UpdateLocalScore(_score);
+        StartCoroutine(ReportFinishedCor());
+        
         OnGameEnd.Invoke();
     }
 
-    // private IEnumerator ReportFinishedCor()
-    // {
-    //     
-    // }
+    private IEnumerator ReportFinishedCor()
+    {
+        var finishRequest = UnityWebRequest.Post(
+            $"{LoginManager.BASE_URL}/Match/finish-match/{playerID}/{matchID}","");
+        
+        yield return finishRequest.SendWebRequest();
+        
+        print(finishRequest.result == UnityWebRequest.Result.Success ?
+            "Reported match finished"
+            : "Failed to report match finished");
+    }
 
     private IEnumerator TimerCor(float initialTime, FloatContainer timeLeft)
     {

@@ -60,7 +60,8 @@ public class MatchController : ControllerBase
         }
 
         matchJoined = await AddPlayerToOpenMatchOrCreate(player);
-        return Ok(matchJoined);
+        return Ok(
+            new List<int>{ player.Id, matchJoined.Id } );
     }
 
     [HttpPost("logout/{playerName}")]
