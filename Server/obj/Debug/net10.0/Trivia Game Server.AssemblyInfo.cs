@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("9562e195-c2ab-44bb-bbb1-b751345ded9b")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("Trivia Game Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4a12b9be8d9040e5b5aee385160b80df3c3716ad")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7de2d0ec8a21336ea35765b013609a8fb3ed2c4d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Trivia Game Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Trivia Game Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
