@@ -8,47 +8,30 @@ using UnityEngine.Networking;
 
 namespace DefaultNamespace
 {
-    public class MatchReadyPoller : MonoBehaviour
+    public class MatchReadyPoller : Poller
     {
-        [SerializeField] private float pollInterval = 1.5f;
-        [SerializeField] private bool LimitPollAttempts = true;
-        [SerializeField] private int maxPollAttempts = 10;
         public UnityEvent OnMatchReady;
-        private Coroutine _pollCoroutine;
         
         [ContextMenu( "Test Poll" )]
         private void TestPoll() => StartPoll(10);
+
+        protected override string PollUrl => pollUrl;
+        private string pollUrl;
         
         public void StartPoll(int matchId)
         {
-            _pollCoroutine = StartCoroutine(PollMatchReady(matchId));
+            pollUrl = $"http://localhost:5246/Match/is-active/{matchId}";
+            StartCoroutine(PollCor(matchId));
         }
 
-        private IEnumerator PollMatchReady(int matchId)
+        protected override bool PollSuccessCondition(string resultText)
         {
-            for (int numAttempts = 0; 
-                 (numAttempts < maxPollAttempts) || !LimitPollAttempts;
-                 numAttempts++)
-            {
-                UnityWebRequest matchReadyReq = UnityWebRequest.Get(
-                    $"http://localhost:5246/Match/is-active/{matchId}");
+            return resultText == "true";
+        }
 
-                yield return matchReadyReq.SendWebRequest();
-                
-                if (matchReadyReq.result != UnityWebRequest.Result.Success)
-                    continue;
-                
-                var resultText = matchReadyReq.downloadHandler.text;
-                
-                print(resultText);
-                if (resultText == "true")
-                {
-                    OnMatchReady.Invoke();
-                    yield break;
-                }
-
-                yield return new WaitForSeconds(pollInterval);
-            }
+        protected override void HandlePollSuccess()
+        {
+            OnMatchReady.Invoke();
         }
     }
 }

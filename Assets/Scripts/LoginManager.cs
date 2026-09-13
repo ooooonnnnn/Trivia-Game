@@ -5,7 +5,6 @@ using UnityEngine.Audio;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using System.Collections.Generic;
-using DataTypes;
 using DefaultNamespace;
 using HelperDataTypes;
 
@@ -57,7 +56,7 @@ public class LoginManager : MonoBehaviour
         
         var loginResult = JsonUtility.FromJson<IntArrayContainer>("{\"array\": " + text + "}").array;
         gameManager.playerID = loginResult[0];
-        gameManager.matchID = loginResult[1];
+        gameManager.matchID = loginResult[1]; 
         print($"connected to match {loginResult[1]} with player id {loginResult[0]}");
         
         matchReadyPoller.StartPoll(loginResult[1]);

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using DataTypes;
+using GameDataTypes;
 using HelperDataTypes;
 using UnityEngine;
 using UnityEngine.Events;
@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator ReportFinishedCor()
     {
         var finishRequest = UnityWebRequest.Post(
-            $"{LoginManager.BASE_URL}/Match/finish-match/{playerID}/{matchID}","");
+            $"{LoginManager.BASE_URL}/Match/finish-match/{playerID}/{matchID}?score={_score}","");
         
         yield return finishRequest.SendWebRequest();
         

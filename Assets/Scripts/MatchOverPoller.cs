@@ -1,16 +1,24 @@
 using UnityEngine;
+using UnityEngine.Events;
 
-public class MatchOverPoller : MonoBehaviour
+public class MatchOverPoller : Poller
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public UnityEvent OnMatchOver;
+    [SerializeField] private GameManager gameManager;
+    
+    protected override string PollUrl => pollUrl;
+    private string pollUrl;
+    
+    public void StartPoll()
     {
-        
+        var matchId = gameManager.matchID;
+        pollUrl = $"http://localhost:5246/Match/is-complete/{matchId}";
+        StartCoroutine(PollCor(matchId));
     }
+    
+    protected override bool PollSuccessCondition(string resultText) 
+        => resultText == "true";
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    protected override void HandlePollSuccess()
+         => OnMatchOver.Invoke();
 }

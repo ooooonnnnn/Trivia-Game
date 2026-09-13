@@ -85,28 +85,29 @@ public class MatchController : ControllerBase
     }
 
     [HttpPost("finish-match/{playerId}/{matchId}")]
-    public async Task<IActionResult> PlayerFinishedMatch(int playerId, int matchId)
+    public async Task<IActionResult> PlayerFinishedMatch(int playerId, int matchId, [FromQuery] float score)
     {
         await _context.Database.ExecuteSqlRawAsync(
             "BEGIN; " +
             "" +
             "UPDATE \"PlayersInMatches\" " +
-            "SET \"IsPlayerDone\" = true " +
+            "SET \"IsPlayerDone\" = true, " +
+            "    \"Score\" = {2} " +
             "WHERE \"PlayerID\" = {1}" +
-            "  AND \"MatchID\" = {0}; " +
+            "   AND \"MatchID\" = {0}; " +
             "" +
             "UPDATE \"Matches\" " +
             "SET \"IsCompleted\" = true " +
             "WHERE \"id\" = {0}" +
-            "  AND NOT EXISTS (" +
-            "    SELECT 1" +
-            "    FROM \"PlayersInMatches\"" +
-            "    WHERE \"MatchID\" = {0}" +
-            "      AND \"IsPlayerDone\" = false" +
-            "  ); " +
+            "   AND NOT EXISTS (" +
+            "     SELECT 1" +
+            "     FROM \"PlayersInMatches\"" +
+            "     WHERE \"MatchID\" = {0}" +
+            "       AND \"IsPlayerDone\" = false" +
+            "   ); " +
             "" +
             "COMMIT;",
-            matchId, playerId);
+            matchId, playerId, score); // Task<int>
 
         return Ok();
     }
@@ -119,6 +120,22 @@ public class MatchController : ControllerBase
             return NotFound();
         
         return Ok((foundMatch.IsCompleted));
+    }
+
+    /// <summary>
+    /// This is used to gete the scores after the match is done
+    /// </summary>
+    /// <param name="matchId"></param>
+    /// <returns></returns>
+    [HttpGet("players-in-match/{matchId}")]
+    public async Task<IActionResult> GetPlayersInMatch(int matchId)
+    {
+        var playersInMatches = await _context.PlayersInMatches.FromSqlRaw(
+            "select * from \"PlayersInMatches\" " +
+            "where \"MatchID\" = {0}", matchId)
+            .ToListAsync();
+        
+        return Ok(playersInMatches);   
     }
 
     private async Task<TriviaMatch?> FindOpenMatch()

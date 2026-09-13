@@ -1753,6 +1753,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   matchID: 0
+  playerID: 0
   matchUI: {fileID: 2066305538}
   resultsUI: {fileID: 1564241422}
   OnCorrectAnswer:
@@ -1791,6 +1792,18 @@ MonoBehaviour:
       - m_Target: {fileID: 922077234}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
         m_MethodName: ShowResultsScreen
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1900433295}
+        m_TargetAssemblyTypeName: MatchOverPoller, Assembly-CSharp
+        m_MethodName: StartPoll
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4585,6 +4598,7 @@ GameObject:
   - component: {fileID: 1900433292}
   - component: {fileID: 1900433294}
   - component: {fileID: 1900433295}
+  - component: {fileID: 1900433296}
   m_Layer: 0
   m_Name: Server Communicator
   m_TagString: Untagged
@@ -4720,6 +4734,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29b87de7bd0a8014d8c81661d3065f41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  pollInterval: 1.5
+  LimitPollAttempts: 0
+  maxPollAttempts: 10
+  OnMatchOver:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1900433296}
+        m_TargetAssemblyTypeName: MatchResults, Assembly-CSharp
+        m_MethodName: WriteResults
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  gameManager: {fileID: 495876378}
+--- !u!114 &1900433296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900433291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b9bb16339ce44440a724b93b594b6e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MatchResults
+  resultsUI: {fileID: 1564241422}
+  gameManager: {fileID: 495876378}
 --- !u!1 &1948649520
 GameObject:
   m_ObjectHideFlags: 0

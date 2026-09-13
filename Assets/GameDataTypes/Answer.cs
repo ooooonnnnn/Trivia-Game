@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataTypes
+namespace GameDataTypes
 {
     [Serializable]
     public class Answer

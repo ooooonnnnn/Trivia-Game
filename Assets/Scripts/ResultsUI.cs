@@ -27,6 +27,7 @@ public class ResultsUI : MonoBehaviour
     private void TestUpdatePlayerScoreList() =>
         UpdatePlayerScoreList(new List<(string, float)> {("Player 1", 100f), ("Player 2", 200f)});
 
+    // ReSharper disable Unity.PerformanceAnalysis
     public void UpdatePlayerScoreList(List<(string, float)> playerScores)
     {
         if (!playerScoreListContainer)
