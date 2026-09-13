@@ -1,4 +1,4 @@
-﻿namespace DataTypes
+﻿namespace GameDataTypes
 {
     public enum UIScreen
     {

@@ -8,7 +8,7 @@ namespace ooooonnnnn.ui
     /// </summary>
     public class NumberDisplay : MonoBehaviour
     {
-        [SerializeField] private string format;
+        public string format;
         [SerializeField] private float[] numbers;
         [SerializeField] private TMP_Text text;
         private object[] _boxedNumbers;
