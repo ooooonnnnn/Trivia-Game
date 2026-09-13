@@ -27,6 +27,14 @@ public class MatchResults : MonoBehaviour
         yield return GetPlayerNamesCor(playerId_scores.Select(r => r.Item1).ToArray(), playerNames);
         
         resultsUI.UpdatePlayerScoreList(playerId_scores.Zip(playerNames, (s, n) => (n, s.Item2)).ToList());
+        if (GetWinnerID(playerId_scores) == gameManager.playerID)
+        {
+            resultsUI.ShowWinMessage();
+        }
+        else
+        {
+            resultsUI.ShowLoseMessage();
+        }
     }
     
     public int GetWinnerID(List<(int, float)> results) => 
@@ -44,6 +52,14 @@ public class MatchResults : MonoBehaviour
 
         results.Clear();
         results.AddRange(playersInMatch.Select(p => (p.playerId, p.score)));
+    }
+
+    [ContextMenu("Test Get Names")]
+    private void TestGetNames()
+    {
+        var playerIds = new[] {71, 72, 73};
+        var playerNames = new List<string>();
+        StartCoroutine(GetPlayerNamesCor(playerIds, playerNames));
     }
 
     private IEnumerator GetPlayerNamesCor(int[] playerIds, List<string> playerNames)
