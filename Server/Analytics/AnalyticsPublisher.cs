@@ -5,10 +5,12 @@ namespace Trivia_Game_Server.Analytics;
 public class AnalyticsPublisher
 {
     private readonly IConnectionMultiplexer _redis;
+    private readonly ILogger<AnalyticsPublisher> _logger;
 
-    public AnalyticsPublisher(IConnectionMultiplexer redis)
+    public AnalyticsPublisher(IConnectionMultiplexer redis, ILogger<AnalyticsPublisher> logger)
     {
         _redis = redis;
+        _logger = logger;
     }
 
     public Task PlayerLoggedInAsync(int playerId) =>
@@ -27,16 +29,27 @@ public class AnalyticsPublisher
             new NameValueEntry("matchId", matchId),
             new NameValueEntry("playerId", playerId));
 
+    // Analytics must never slow down or break the game, so this never throws
+    // and never waits for Redis to reply.
     private Task PublishAsync(string type, params NameValueEntry[] fields)
     {
-        var entries = new NameValueEntry[fields.Length + 1];
-        entries[0] = new NameValueEntry("type", type);
-        fields.CopyTo(entries, 1);
+        try
+        {
+            var entries = new NameValueEntry[fields.Length + 1];
+            entries[0] = new NameValueEntry("type", type);
+            fields.CopyTo(entries, 1);
 
-        return _redis.GetDatabase().StreamAddAsync(
-            AnalyticsStream.Key,
-            entries,
-            maxLength: AnalyticsStream.MaxLength,
-            useApproximateMaxLength: true);
+            return _redis.GetDatabase().StreamAddAsync(
+                AnalyticsStream.Key,
+                entries,
+                maxLength: AnalyticsStream.MaxLength,
+                useApproximateMaxLength: true,
+                flags: CommandFlags.FireAndForget);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to publish analytics event {Type}", type);
+            return Task.CompletedTask;
+        }
     }
 }
