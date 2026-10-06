@@ -217,7 +217,7 @@ public class AnalyticsConsumer : BackgroundService
         {
             var tran = db.CreateTransaction();
             tran.AddCondition(Condition.HashNotExists(AnalyticsKeys.EventsCounted, entry.Id));
-            _ = tran.HashSetAsync(AnalyticsKeys.EventsCounted, entry.Id, 1);
+            _ = tran.HashSetAsync(AnalyticsKeys.EventsCounted, entry.Id, type);
             _ = tran.HashFieldExpireAsync(AnalyticsKeys.EventsCounted, new[] { entry.Id }, CountedTtl);
 
             _ = tran.HashIncrementAsync(dailyStatsKey, statsField);

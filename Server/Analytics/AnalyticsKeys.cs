@@ -13,7 +13,8 @@ public static class AnalyticsKeys
     public const string Events = Prefix + ":events";
 
     // Hash: events that have already been counted, so a redelivery can't count
-    // twice. Field = event id from trivia:events. Each field expires on its own.
+    // twice. Field = event id from trivia:events, value = that event's type, so
+    // the list reads as what was counted. Each field expires on its own.
     public const string EventsCounted = Events + ":counted";
 
     // Hash: one day's counters (logins, matchesCreated, playersJoined, playersLeft,
