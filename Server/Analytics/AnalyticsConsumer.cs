@@ -6,12 +6,13 @@ public class AnalyticsConsumer : BackgroundService
 {
     private static readonly TimeSpan DailyStatsTtl = TimeSpan.FromDays(35);
     private static readonly TimeSpan ActivePlayersTtl = TimeSpan.FromDays(90);
-    private static readonly TimeSpan ProcessedTtl = TimeSpan.FromHours(1);
+    private static readonly TimeSpan CountedTtl = TimeSpan.FromHours(1);
     private static readonly TimeSpan IdleDelay = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan ErrorDelay = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan StaleAfter = TimeSpan.FromMinutes(1);
     private static readonly TimeSpan ReclaimInterval = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan StaleConsumerAfter = TimeSpan.FromMinutes(10);
+    private const int MaxApplyAttempts = 3;
 
     // Which counter in the daily stats hash each event type increments.
     private static readonly Dictionary<string, string> DailyStatsFields = new()
@@ -168,40 +169,56 @@ public class AnalyticsConsumer : BackgroundService
             return true;
         }
 
-        var day = DateOnly.FromDateTime(EventTimeUtc(entry));
-        var processedKey = AnalyticsKeys.Processed(entry.Id.ToString());
-
         if (!DailyStatsFields.TryGetValue(type, out var statsField))
         {
             _logger.LogWarning("Unknown event type {Type} in {Id}, discarding", type, entry.Id);
             return true;
         }
 
-        var tran = db.CreateTransaction();
-        tran.AddCondition(Condition.KeyNotExists(processedKey));
-        _ = tran.StringSetAsync(processedKey, "1", ProcessedTtl);
-
+        var day = DateOnly.FromDateTime(EventTimeUtc(entry));
         var dailyStatsKey = AnalyticsKeys.DailyStats(day);
-        _ = tran.HashIncrementAsync(dailyStatsKey, statsField);
-        _ = tran.KeyExpireAsync(dailyStatsKey, DailyStatsTtl);
+        var activePlayersKey = AnalyticsKeys.ActivePlayers(day);
 
+        long? activePlayerId = null;
         if (type == AnalyticsEventTypes.PlayerLoggedIn
             && fields.TryGetValue("playerId", out var raw)
             && long.TryParse(raw, out var playerId))
         {
-            var activePlayersKey = AnalyticsKeys.ActivePlayers(day);
-            _ = tran.StringSetBitAsync(activePlayersKey, playerId, true);
-            _ = tran.KeyExpireAsync(activePlayersKey, ActivePlayersTtl);
+            activePlayerId = playerId;
         }
 
-        var committed = await tran.ExecuteAsync();
-
-        if (committed)
+        // Every event shares the counted-events hash, so a transaction can also be
+        // interrupted by unrelated activity on that hash, not only because this
+        // event was already counted. Retry until it commits or the event really is
+        // a duplicate, so a real event is never dropped as one by mistake.
+        for (var attempt = 1; attempt <= MaxApplyAttempts; attempt++)
         {
-            _logger.LogInformation("Applied {Type} to {Key}", type, dailyStatsKey);
+            var tran = db.CreateTransaction();
+            tran.AddCondition(Condition.HashNotExists(AnalyticsKeys.EventsCounted, entry.Id));
+            _ = tran.HashSetAsync(AnalyticsKeys.EventsCounted, entry.Id, 1);
+            _ = tran.HashFieldExpireAsync(AnalyticsKeys.EventsCounted, new[] { entry.Id }, CountedTtl);
+
+            _ = tran.HashIncrementAsync(dailyStatsKey, statsField);
+            _ = tran.KeyExpireAsync(dailyStatsKey, DailyStatsTtl);
+
+            if (activePlayerId is long id)
+            {
+                _ = tran.StringSetBitAsync(activePlayersKey, id, true);
+                _ = tran.KeyExpireAsync(activePlayersKey, ActivePlayersTtl);
+            }
+
+            if (await tran.ExecuteAsync())
+            {
+                _logger.LogInformation("Applied {Type} to {Key}", type, dailyStatsKey);
+                return true;
+            }
+
+            if (await db.HashExistsAsync(AnalyticsKeys.EventsCounted, entry.Id))
+                return false;
         }
 
-        return committed;
+        throw new InvalidOperationException(
+            $"Could not apply {entry.Id} after {MaxApplyAttempts} attempts");
     }
 
     private static DateTime EventTimeUtc(StreamEntry entry)
