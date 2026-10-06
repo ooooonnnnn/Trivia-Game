@@ -34,19 +34,18 @@ public class AnalyticsConsumer : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var db = _redis.GetDatabase();
-
-        try
-        {
-            await db.StreamCreateConsumerGroupAsync(AnalyticsStream.Key, AnalyticsStream.GroupName, "0", createStream: true);
-        }
-        catch (RedisServerException ex) when (ex.Message.Contains("BUSYGROUP"))
-        {
-        }
+        var groupReady = false;
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
+                if (!groupReady)
+                {
+                    await EnsureGroupExistsAsync(db);
+                    groupReady = true;
+                }
+
                 var entries = await db.StreamReadGroupAsync(
                     AnalyticsStream.Key, AnalyticsStream.GroupName, AnalyticsStream.ConsumerName, ">", count: 10);
 
@@ -71,6 +70,20 @@ public class AnalyticsConsumer : BackgroundService
                 _logger.LogError(ex, "Analytics read loop failed, retrying");
                 await Task.Delay(ErrorDelay, stoppingToken);
             }
+        }
+    }
+
+    // Kept inside the retry loop: if Redis is unreachable at startup, this must
+    // fail and be retried, never escape and take the whole host down with it.
+    private static async Task EnsureGroupExistsAsync(IDatabase db)
+    {
+        try
+        {
+            await db.StreamCreateConsumerGroupAsync(
+                AnalyticsStream.Key, AnalyticsStream.GroupName, "0", createStream: true);
+        }
+        catch (RedisServerException ex) when (ex.Message.Contains("BUSYGROUP"))
+        {
         }
     }
 
