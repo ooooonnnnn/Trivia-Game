@@ -8,8 +8,7 @@ public class AnalyticsPublisher
     private readonly IConnectionMultiplexer? _redis;
     private readonly ILogger<AnalyticsPublisher> _logger;
 
-    // redis is null when no Redis connection string is configured. Publishing
-    // then does nothing, so the game runs the same without analytics.
+    // redis is null when analytics is disabled.
     public AnalyticsPublisher(IConnectionMultiplexer? redis, ILogger<AnalyticsPublisher> logger)
     {
         _redis = redis;
@@ -39,7 +38,7 @@ public class AnalyticsPublisher
             new NameValueEntry(AnalyticsEventFields.MatchId, matchId),
             new NameValueEntry(AnalyticsEventFields.PlayerId, playerId));
 
-    // The score is recorded with one decimal, the same way the results screen shows it.
+    // Score uses one decimal, same as the results screen.
     public Task PlayerFinishedMatchAsync(int matchId, int playerId, string playerName, float score) =>
         PublishAsync(AnalyticsEventTypes.PlayerFinishedMatch,
             new NameValueEntry(AnalyticsEventFields.MatchId, matchId),
@@ -47,8 +46,7 @@ public class AnalyticsPublisher
             new NameValueEntry(AnalyticsEventFields.PlayerName, playerName),
             new NameValueEntry(AnalyticsEventFields.Score, score.ToString("0.#", CultureInfo.InvariantCulture)));
 
-    // Analytics must never slow down or break the game, so this never throws
-    // and never waits for Redis to reply.
+    // Fire-and-forget and never throws, so analytics can't slow down or break the game.
     private Task PublishAsync(string type, params NameValueEntry[] fields)
     {
         if (_redis is null)
@@ -56,7 +54,6 @@ public class AnalyticsPublisher
 
         try
         {
-            // Every event starts with its type, followed by its own fields.
             NameValueEntry[] entry = [new(AnalyticsEventFields.Type, type), .. fields];
 
             return _redis.GetDatabase().StreamAddAsync(

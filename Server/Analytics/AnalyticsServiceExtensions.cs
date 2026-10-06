@@ -9,8 +9,7 @@ public static class AnalyticsServiceExtensions
     {
         var connectionString = configuration["Redis:ConnectionString"];
 
-        // Analytics is optional. Without a Redis connection string the game still
-        // runs normally: the publisher records nothing and no consumer starts.
+        // Analytics is optional: without a connection string the game runs without it.
         if (string.IsNullOrWhiteSpace(connectionString))
         {
             services.AddSingleton(sp => new AnalyticsPublisher(
