@@ -4,4 +4,5 @@ public class Trivia_PlayersInMatches : TriviaTable
 {
     public int MatchId { get; set; }
     public int PlayerId { get; set; }
+    public float? Score { get; set; }
 }

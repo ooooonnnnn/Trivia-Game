@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using DataTypes;
+using GameDataTypes;
 using HelperDataTypes;
 using UnityEngine;
 using UnityEngine.Events;
@@ -10,7 +10,7 @@ using UnityEngine.Networking;
 public class GameManager : MonoBehaviour
 {
     public int matchID;
-    [SerializeField] private UIManager uiManager;
+    public int playerID;
     [SerializeField] private MatchUI matchUI;
     [SerializeField] private ResultsUI resultsUI;
     private Dictionary<Question, Answer[]> _questions = new();
@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
 
     public UnityEvent OnCorrectAnswer;
     public UnityEvent OnWrongAnswer;
+    public UnityEvent OnGameEnd;
 
     [ContextMenu( "Start Game" )]
     public void StartGame()
@@ -56,8 +57,22 @@ public class GameManager : MonoBehaviour
             StopCoroutine(timerCor);
         }
         
-        resultsUI.UpdateScore(_score);
-        uiManager.ShowResultsScreen();
+        resultsUI.UpdateLocalScore(_score);
+        StartCoroutine(ReportFinishedCor());
+        
+        OnGameEnd.Invoke();
+    }
+
+    private IEnumerator ReportFinishedCor()
+    {
+        var finishRequest = UnityWebRequest.Post(
+            $"{LoginManager.BASE_URL}/Match/finish-match/{playerID}/{matchID}?score={_score}","");
+        
+        yield return finishRequest.SendWebRequest();
+        
+        print(finishRequest.result == UnityWebRequest.Result.Success ?
+            "Reported match finished"
+            : "Failed to report match finished");
     }
 
     private IEnumerator TimerCor(float initialTime, FloatContainer timeLeft)

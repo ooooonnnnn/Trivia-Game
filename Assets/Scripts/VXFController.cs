@@ -8,16 +8,23 @@ public class VXFController : MonoBehaviour
     [ContextMenu("Show Correct Effect")]
     public void ShowCorrectEffect()
     {
-        StopAllCoroutines();
-        
+        ResetEffects();
+
         StartCoroutine(
             FlashObject(correctEffect.gameObject, correctEffect.number));
+    }
+
+    private void ResetEffects()
+    {
+        StopAllCoroutines();
+        correctEffect.gameObject.SetActive(false);
+        wrongEffect.gameObject.SetActive(false);
     }
 
     [ContextMenu("Show Wrong Effect")]
     public void ShowWrongEffect()
     {
-        StopAllCoroutines();
+        ResetEffects();
         
         StartCoroutine(
             FlashObject(wrongEffect.gameObject, wrongEffect.number));

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataTypes
+namespace GameDataTypes
 {
     public class GameSettings
     {

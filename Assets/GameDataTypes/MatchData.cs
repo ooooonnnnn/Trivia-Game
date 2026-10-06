@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DataTypes
+namespace GameDataTypes
 {
     public class MatchData
     {
@@ -8,5 +8,6 @@ namespace DataTypes
         public DateTime createdAt;
         public bool isActive, isCompleted;
         public int? winner_PlayerID;
+        public float? score;
     }
 }

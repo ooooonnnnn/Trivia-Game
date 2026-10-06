@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using DataTypes;
+using GameDataTypes;
 using ooooonnnnn.ui;
 using TMPro;
 using UnityEngine;
