@@ -14,18 +14,18 @@ public class AnalyticsPublisher
     }
 
     public Task PlayerLoggedInAsync(int playerId) =>
-        PublishAsync("player.login", new NameValueEntry("playerId", playerId));
+        PublishAsync(AnalyticsEventTypes.PlayerLoggedIn, new NameValueEntry("playerId", playerId));
 
     public Task MatchCreatedAsync(int matchId) =>
-        PublishAsync("match.created", new NameValueEntry("matchId", matchId));
+        PublishAsync(AnalyticsEventTypes.MatchCreated, new NameValueEntry("matchId", matchId));
 
     public Task PlayerJoinedMatchAsync(int matchId, int playerId) =>
-        PublishAsync("player.joined",
+        PublishAsync(AnalyticsEventTypes.PlayerJoinedMatch,
             new NameValueEntry("matchId", matchId),
             new NameValueEntry("playerId", playerId));
 
     public Task PlayerLeftMatchAsync(int matchId, int playerId) =>
-        PublishAsync("player.left",
+        PublishAsync(AnalyticsEventTypes.PlayerLeftMatch,
             new NameValueEntry("matchId", matchId),
             new NameValueEntry("playerId", playerId));
 
@@ -40,7 +40,7 @@ public class AnalyticsPublisher
             fields.CopyTo(entries, 1);
 
             return _redis.GetDatabase().StreamAddAsync(
-                AnalyticsStream.Key,
+                AnalyticsKeys.Events,
                 entries,
                 maxLength: AnalyticsStream.MaxLength,
                 useApproximateMaxLength: true,

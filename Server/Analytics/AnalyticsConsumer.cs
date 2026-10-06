@@ -4,21 +4,22 @@ namespace Trivia_Game_Server.Analytics;
 
 public class AnalyticsConsumer : BackgroundService
 {
-    private static readonly TimeSpan FunnelTtl = TimeSpan.FromDays(35);
-    private static readonly TimeSpan ActiveTtl = TimeSpan.FromDays(90);
-    private static readonly TimeSpan DedupeTtl = TimeSpan.FromHours(1);
+    private static readonly TimeSpan DailyStatsTtl = TimeSpan.FromDays(35);
+    private static readonly TimeSpan ActivePlayersTtl = TimeSpan.FromDays(90);
+    private static readonly TimeSpan ProcessedTtl = TimeSpan.FromHours(1);
     private static readonly TimeSpan IdleDelay = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan ErrorDelay = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan StaleAfter = TimeSpan.FromMinutes(1);
     private static readonly TimeSpan ReclaimInterval = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan StaleConsumerAfter = TimeSpan.FromMinutes(10);
 
-    private static readonly Dictionary<string, string> FunnelFields = new()
+    // Which counter in the daily stats hash each event type increments.
+    private static readonly Dictionary<string, string> DailyStatsFields = new()
     {
-        ["player.login"] = "logins",
-        ["match.created"] = "matchesCreated",
-        ["player.joined"] = "playersJoined",
-        ["player.left"] = "playersLeft",
+        [AnalyticsEventTypes.PlayerLoggedIn] = "logins",
+        [AnalyticsEventTypes.MatchCreated] = "matchesCreated",
+        [AnalyticsEventTypes.PlayerJoinedMatch] = "playersJoined",
+        [AnalyticsEventTypes.PlayerLeftMatch] = "playersLeft",
     };
 
     private readonly IConnectionMultiplexer _redis;
@@ -47,7 +48,7 @@ public class AnalyticsConsumer : BackgroundService
                 }
 
                 var entries = await db.StreamReadGroupAsync(
-                    AnalyticsStream.Key, AnalyticsStream.GroupName, AnalyticsStream.ConsumerName, ">", count: 10);
+                    AnalyticsKeys.Events, AnalyticsStream.GroupName, AnalyticsStream.ConsumerName, ">", count: 10);
 
                 if (entries.Length == 0)
                 {
@@ -80,7 +81,7 @@ public class AnalyticsConsumer : BackgroundService
         try
         {
             await db.StreamCreateConsumerGroupAsync(
-                AnalyticsStream.Key, AnalyticsStream.GroupName, "0", createStream: true);
+                AnalyticsKeys.Events, AnalyticsStream.GroupName, "0", createStream: true);
         }
         catch (RedisServerException ex) when (ex.Message.Contains("BUSYGROUP"))
         {
@@ -95,7 +96,7 @@ public class AnalyticsConsumer : BackgroundService
         _lastReclaimUtc = DateTime.UtcNow;
 
         var result = await db.StreamAutoClaimAsync(
-            AnalyticsStream.Key,
+            AnalyticsKeys.Events,
             AnalyticsStream.GroupName,
             AnalyticsStream.ConsumerName,
             (long)StaleAfter.TotalMilliseconds,
@@ -117,7 +118,7 @@ public class AnalyticsConsumer : BackgroundService
 
     private async Task RemoveDeadConsumersAsync(IDatabase db)
     {
-        var consumers = await db.StreamConsumerInfoAsync(AnalyticsStream.Key, AnalyticsStream.GroupName);
+        var consumers = await db.StreamConsumerInfoAsync(AnalyticsKeys.Events, AnalyticsStream.GroupName);
 
         foreach (var consumer in consumers)
         {
@@ -131,7 +132,7 @@ public class AnalyticsConsumer : BackgroundService
                 continue;
 
             await db.StreamDeleteConsumerAsync(
-                AnalyticsStream.Key, AnalyticsStream.GroupName, consumer.Name);
+                AnalyticsKeys.Events, AnalyticsStream.GroupName, consumer.Name);
 
             _logger.LogInformation("Removed dead consumer {Consumer}", consumer.Name);
         }
@@ -148,7 +149,7 @@ public class AnalyticsConsumer : BackgroundService
                 _logger.LogInformation("Skipped duplicate {Id}", entry.Id);
             }
 
-            await db.StreamAcknowledgeAsync(AnalyticsStream.Key, AnalyticsStream.GroupName, entry.Id);
+            await db.StreamAcknowledgeAsync(AnalyticsKeys.Events, AnalyticsStream.GroupName, entry.Id);
         }
         catch (Exception ex)
         {
@@ -167,37 +168,37 @@ public class AnalyticsConsumer : BackgroundService
             return true;
         }
 
-        var day = EventTimeUtc(entry).ToString("yyyy-MM-dd");
-        var dedupeKey = (RedisKey)$"dedupe:{entry.Id}";
+        var day = DateOnly.FromDateTime(EventTimeUtc(entry));
+        var processedKey = AnalyticsKeys.Processed(entry.Id.ToString());
 
-        if (!FunnelFields.TryGetValue(type, out var funnelField))
+        if (!DailyStatsFields.TryGetValue(type, out var statsField))
         {
             _logger.LogWarning("Unknown event type {Type} in {Id}, discarding", type, entry.Id);
             return true;
         }
 
         var tran = db.CreateTransaction();
-        tran.AddCondition(Condition.KeyNotExists(dedupeKey));
-        _ = tran.StringSetAsync(dedupeKey, "1", DedupeTtl);
+        tran.AddCondition(Condition.KeyNotExists(processedKey));
+        _ = tran.StringSetAsync(processedKey, "1", ProcessedTtl);
 
-        var funnelKey = (RedisKey)$"funnel:{day}";
-        _ = tran.HashIncrementAsync(funnelKey, funnelField);
-        _ = tran.KeyExpireAsync(funnelKey, FunnelTtl);
+        var dailyStatsKey = AnalyticsKeys.DailyStats(day);
+        _ = tran.HashIncrementAsync(dailyStatsKey, statsField);
+        _ = tran.KeyExpireAsync(dailyStatsKey, DailyStatsTtl);
 
-        if (type == "player.login"
+        if (type == AnalyticsEventTypes.PlayerLoggedIn
             && fields.TryGetValue("playerId", out var raw)
             && long.TryParse(raw, out var playerId))
         {
-            var activeKey = (RedisKey)$"active:{day}";
-            _ = tran.StringSetBitAsync(activeKey, playerId, true);
-            _ = tran.KeyExpireAsync(activeKey, ActiveTtl);
+            var activePlayersKey = AnalyticsKeys.ActivePlayers(day);
+            _ = tran.StringSetBitAsync(activePlayersKey, playerId, true);
+            _ = tran.KeyExpireAsync(activePlayersKey, ActivePlayersTtl);
         }
 
         var committed = await tran.ExecuteAsync();
 
         if (committed)
         {
-            _logger.LogInformation("Applied {Type} to {Day}", type, day);
+            _logger.LogInformation("Applied {Type} to {Key}", type, dailyStatsKey);
         }
 
         return committed;
