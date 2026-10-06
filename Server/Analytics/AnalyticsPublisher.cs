@@ -22,28 +22,30 @@ public class AnalyticsPublisher
     }
 
     public Task PlayerLoggedInAsync(int playerId) =>
-        PublishAsync(AnalyticsEventTypes.PlayerLoggedIn, new NameValueEntry("playerId", playerId));
+        PublishAsync(AnalyticsEventTypes.PlayerLoggedIn,
+            new NameValueEntry(AnalyticsEventFields.PlayerId, playerId));
 
     public Task MatchCreatedAsync(int matchId) =>
-        PublishAsync(AnalyticsEventTypes.MatchCreated, new NameValueEntry("matchId", matchId));
+        PublishAsync(AnalyticsEventTypes.MatchCreated,
+            new NameValueEntry(AnalyticsEventFields.MatchId, matchId));
 
     public Task PlayerJoinedMatchAsync(int matchId, int playerId) =>
         PublishAsync(AnalyticsEventTypes.PlayerJoinedMatch,
-            new NameValueEntry("matchId", matchId),
-            new NameValueEntry("playerId", playerId));
+            new NameValueEntry(AnalyticsEventFields.MatchId, matchId),
+            new NameValueEntry(AnalyticsEventFields.PlayerId, playerId));
 
     public Task PlayerLeftMatchAsync(int matchId, int playerId) =>
         PublishAsync(AnalyticsEventTypes.PlayerLeftMatch,
-            new NameValueEntry("matchId", matchId),
-            new NameValueEntry("playerId", playerId));
+            new NameValueEntry(AnalyticsEventFields.MatchId, matchId),
+            new NameValueEntry(AnalyticsEventFields.PlayerId, playerId));
 
     // The score is recorded with one decimal, the same way the results screen shows it.
     public Task PlayerFinishedMatchAsync(int matchId, int playerId, string playerName, float score) =>
         PublishAsync(AnalyticsEventTypes.PlayerFinishedMatch,
-            new NameValueEntry("matchId", matchId),
-            new NameValueEntry("playerId", playerId),
-            new NameValueEntry("playerName", playerName),
-            new NameValueEntry("score", score.ToString("0.#", CultureInfo.InvariantCulture)));
+            new NameValueEntry(AnalyticsEventFields.MatchId, matchId),
+            new NameValueEntry(AnalyticsEventFields.PlayerId, playerId),
+            new NameValueEntry(AnalyticsEventFields.PlayerName, playerName),
+            new NameValueEntry(AnalyticsEventFields.Score, score.ToString("0.#", CultureInfo.InvariantCulture)));
 
     // Analytics must never slow down or break the game, so this never throws
     // and never waits for Redis to reply.
@@ -54,14 +56,13 @@ public class AnalyticsPublisher
 
         try
         {
-            var entries = new NameValueEntry[fields.Length + 1];
-            entries[0] = new NameValueEntry("type", type);
-            fields.CopyTo(entries, 1);
+            // Every event starts with its type, followed by its own fields.
+            NameValueEntry[] entry = [new(AnalyticsEventFields.Type, type), .. fields];
 
             return _redis.GetDatabase().StreamAddAsync(
                 AnalyticsKeys.Events,
-                entries,
-                maxLength: AnalyticsStream.MaxLength,
+                entry,
+                maxLength: AnalyticsKeys.MaxEventsKept,
                 useApproximateMaxLength: true,
                 flags: CommandFlags.FireAndForget);
         }
