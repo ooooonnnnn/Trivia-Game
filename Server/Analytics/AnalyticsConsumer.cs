@@ -1,3 +1,4 @@
+using System.Globalization;
 using StackExchange.Redis;
 
 namespace Trivia_Game_Server.Analytics;
@@ -21,6 +22,7 @@ public class AnalyticsConsumer : BackgroundService
         [AnalyticsEventTypes.MatchCreated] = "matchesCreated",
         [AnalyticsEventTypes.PlayerJoinedMatch] = "playersJoined",
         [AnalyticsEventTypes.PlayerLeftMatch] = "playersLeft",
+        [AnalyticsEventTypes.PlayerFinishedMatch] = "playersFinished",
     };
 
     private readonly IConnectionMultiplexer _redis;
@@ -187,6 +189,26 @@ public class AnalyticsConsumer : BackgroundService
             activePlayerId = playerId;
         }
 
+        // Leaderboard points are whole numbers: adding decimals together in Redis
+        // produces totals like 10.299999999999999.
+        string? leaderboardPlayer = null;
+        double leaderboardPoints = 0;
+        if (type == AnalyticsEventTypes.PlayerFinishedMatch)
+        {
+            if (fields.TryGetValue("playerName", out var playerName)
+                && playerName.Length > 0
+                && fields.TryGetValue("score", out var rawScore)
+                && double.TryParse(rawScore, NumberStyles.Float, CultureInfo.InvariantCulture, out var score))
+            {
+                leaderboardPlayer = playerName;
+                leaderboardPoints = Math.Round(score, MidpointRounding.AwayFromZero);
+            }
+            else
+            {
+                _logger.LogWarning("Event {Id} is missing a player name or score, leaderboard not updated", entry.Id);
+            }
+        }
+
         // Every event shares the counted-events hash, so a transaction can also be
         // interrupted by unrelated activity on that hash, not only because this
         // event was already counted. Retry until it commits or the event really is
@@ -207,9 +229,22 @@ public class AnalyticsConsumer : BackgroundService
                 _ = tran.KeyExpireAsync(activePlayersKey, ActivePlayersTtl);
             }
 
+            if (leaderboardPlayer is not null)
+            {
+                _ = tran.SortedSetIncrementAsync(
+                    AnalyticsKeys.LeaderboardTotalScore, leaderboardPlayer, leaderboardPoints);
+            }
+
             if (await tran.ExecuteAsync())
             {
                 _logger.LogInformation("Applied {Type} to {Key}", type, dailyStatsKey);
+
+                if (leaderboardPlayer is not null)
+                {
+                    _logger.LogInformation("Added {Points} points for {Player} to {Key}",
+                        leaderboardPoints, leaderboardPlayer, AnalyticsKeys.LeaderboardTotalScore);
+                }
+
                 return true;
             }
 

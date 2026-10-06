@@ -118,6 +118,9 @@ public class MatchController : ControllerBase
             "COMMIT;",
             matchId, playerId, score); // Task<int>
 
+        var player = await _context.Players.FindAsync(playerId);
+        await _analytics.PlayerFinishedMatchAsync(matchId, playerId, player?.Name ?? "", score);
+
         return Ok();
     }
     

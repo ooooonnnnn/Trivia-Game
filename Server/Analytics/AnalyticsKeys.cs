@@ -16,11 +16,16 @@ public static class AnalyticsKeys
     // twice. Field = event id from trivia:events. Each field expires on its own.
     public const string EventsCounted = Events + ":counted";
 
-    // Hash: one day's counters (logins, matchesCreated, playersJoined, playersLeft).
+    // Hash: one day's counters (logins, matchesCreated, playersJoined, playersLeft,
+    // playersFinished).
     public static string DailyStats(DateOnly day) => $"{Prefix}:stats:daily:{Format(day)}";
 
     // Bitmap: players active on a day. Bit index = player id.
     public static string ActivePlayers(DateOnly day) => $"{Prefix}:players:active:{Format(day)}";
+
+    // Sorted set: players ranked by their total score across all matches.
+    // Member = player name, score = total points (whole numbers).
+    public const string LeaderboardTotalScore = Prefix + ":leaderboard:total_score";
 
     private static string Format(DateOnly day) =>
         day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);

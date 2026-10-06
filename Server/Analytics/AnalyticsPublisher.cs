@@ -1,3 +1,4 @@
+using System.Globalization;
 using StackExchange.Redis;
 
 namespace Trivia_Game_Server.Analytics;
@@ -28,6 +29,14 @@ public class AnalyticsPublisher
         PublishAsync(AnalyticsEventTypes.PlayerLeftMatch,
             new NameValueEntry("matchId", matchId),
             new NameValueEntry("playerId", playerId));
+
+    // The score is recorded with one decimal, the same way the results screen shows it.
+    public Task PlayerFinishedMatchAsync(int matchId, int playerId, string playerName, float score) =>
+        PublishAsync(AnalyticsEventTypes.PlayerFinishedMatch,
+            new NameValueEntry("matchId", matchId),
+            new NameValueEntry("playerId", playerId),
+            new NameValueEntry("playerName", playerName),
+            new NameValueEntry("score", score.ToString("0.#", CultureInfo.InvariantCulture)));
 
     // Analytics must never slow down or break the game, so this never throws
     // and never waits for Redis to reply.
