@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Trivia_Game_Server;
+using Trivia_Game_Server.Analytics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
+builder.Services.AddAnalytics(builder.Configuration);
 
 var app = builder.Build();
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Trivia_Game_Server.Analytics;
 
 namespace Trivia_Game_Server.Controllers;
 
@@ -11,10 +12,12 @@ public class MatchController : ControllerBase
 {
     private readonly TriviaDbContext _context;
     private readonly Lock _startMatchLock = new();
+    private readonly AnalyticsPublisher _analytics;
     
-    public MatchController(TriviaDbContext context)
+    public MatchController(TriviaDbContext context, AnalyticsPublisher analytics)
     {
         _context = context;
+        _analytics = analytics;
     }
 
     [HttpPost("login/{playerName}")]
@@ -67,9 +70,15 @@ public class MatchController : ControllerBase
     [HttpPost("logout/{playerName}")]
     public async Task<IActionResult> Logout(string playerName)
     {
-        await _context.Database.ExecuteSqlRawAsync(
-            "delete from \"PlayersInMatches\" where \"PlayerID\" in (" +
-            "  select id from \"Players\" where \"Name\" = {0})", playerName);
+        var removed = await _context.PlayersInMatches
+            .FromSqlRaw("delete from \"PlayersInMatches\" where \"PlayerID\" in (" +
+                        "  select id from \"Players\" where \"Name\" = {0}) returning *", playerName)
+            .ToListAsync();
+
+        foreach (var row in removed)
+        {
+            await _analytics.PlayerLeftMatchAsync(row.MatchId, row.PlayerId);
+        }
 
         return Ok();
     }
@@ -108,6 +117,9 @@ public class MatchController : ControllerBase
             "" +
             "COMMIT;",
             matchId, playerId, score); // Task<int>
+
+        var player = await _context.Players.FindAsync(playerId);
+        await _analytics.PlayerFinishedMatchAsync(matchId, playerId, player?.Name ?? "", score);
 
         return Ok();
     }
@@ -161,6 +173,8 @@ public class MatchController : ControllerBase
 
     private async Task<TriviaMatch> AddPlayerToOpenMatchOrCreate(TriviaPlayer player)
     {
+        await _analytics.PlayerLoggedInAsync(player.Id);
+        
         var openMatch = await FindOpenMatch();
         TriviaMatch matchToJoin;
         
@@ -176,6 +190,9 @@ public class MatchController : ControllerBase
                             "values (false, false, null) " +
                             "returning *")
                 .ToListAsync()).First();
+
+            await _analytics.MatchCreatedAsync(matchToJoin.Id);
+
             //add questions to the match
             var matchId = matchToJoin.Id;
             await _context.Database.ExecuteSqlRawAsync(
@@ -193,6 +210,8 @@ public class MatchController : ControllerBase
             .FromSqlRaw("insert into \"PlayersInMatches\" (\"MatchID\", \"PlayerID\") " +
                         "values ({0}, {1}) returning *", matchToJoin.Id, player.Id)
             .ToListAsync();
+
+        await _analytics.PlayerJoinedMatchAsync(matchToJoin.Id, player.Id);
         
         //try to start the match
         lock (_startMatchLock)
