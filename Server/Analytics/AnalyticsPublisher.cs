@@ -5,13 +5,20 @@ namespace Trivia_Game_Server.Analytics;
 
 public class AnalyticsPublisher
 {
-    private readonly IConnectionMultiplexer _redis;
+    private readonly IConnectionMultiplexer? _redis;
     private readonly ILogger<AnalyticsPublisher> _logger;
 
-    public AnalyticsPublisher(IConnectionMultiplexer redis, ILogger<AnalyticsPublisher> logger)
+    // redis is null when no Redis connection string is configured. Publishing
+    // then does nothing, so the game runs the same without analytics.
+    public AnalyticsPublisher(IConnectionMultiplexer? redis, ILogger<AnalyticsPublisher> logger)
     {
         _redis = redis;
         _logger = logger;
+
+        if (_redis is null)
+        {
+            _logger.LogWarning("Redis:ConnectionString is not set, so analytics is disabled");
+        }
     }
 
     public Task PlayerLoggedInAsync(int playerId) =>
@@ -42,6 +49,9 @@ public class AnalyticsPublisher
     // and never waits for Redis to reply.
     private Task PublishAsync(string type, params NameValueEntry[] fields)
     {
+        if (_redis is null)
+            return Task.CompletedTask;
+
         try
         {
             var entries = new NameValueEntry[fields.Length + 1];
